@@ -11,5 +11,9 @@ func main() {
     e.GET("/", func(c echo.Context) error {
         return c.String(http.StatusOK, "Hello, World!")
     })
+    e.GET("/:user", func(c echo.Context) error {
+        user := c.Param("user")
+        return c.String(http.StatusOK, "Hello, World!" + user)
+    })
     e.Logger.Fatal(e.Start(":1323"))
 }

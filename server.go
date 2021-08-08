@@ -9,12 +9,23 @@ import (
     "io/ioutil"
 
     "github.com/labstack/echo/v4"
+    "github.com/google/uuid"
 )
 
 type (
     regulatoinResponse struct {
         Message string `json:"message"`
     }
+
+    userRequest struct {
+        Name string `json:"name"`
+        Device string `json:"device"`
+        Version string `json:"version"`
+    }
+    userResponse struct {
+        UUID string `json:"uuid"`
+    }
+    
     beaconRequest struct {
         Quiz int `json:"quiz"`
         Beacon []int `json:"beacon"`
@@ -34,6 +45,26 @@ func main() {
     e.GET("/:user", func(c echo.Context) error {
         user := c.Param("user")
         return c.String(http.StatusOK, "Hello, World!" + user)
+    })
+    e.POST("/user/create", func (c echo.Context) error {
+        request := new(userRequest)
+        if err := c.Bind(request); err != nil {
+            return err
+        }
+
+        response := userResponse {}
+
+        if(request.Name == "taked") {
+            return c.JSON(http.StatusConflict, response)
+        }
+
+        u, err := uuid.NewRandom()
+        if err != nil {
+            return c.JSON(http.StatusInternalServerError, response)
+        }
+
+        response.UUID = u.String()
+        return c.JSON(http.StatusOK, response)
     })
     e.GET("/regulation", func(c echo.Context) error {
         filename := "./regulation.txt"

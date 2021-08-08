@@ -2,13 +2,19 @@ package main
 
 import (
     "time"
+    "os"
+
     "math/rand"
     "net/http"
+    "io/ioutil"
 
     "github.com/labstack/echo/v4"
 )
 
 type (
+    regulatoinResponse struct {
+        Message string `json:"message"`
+    }
     beaconRequest struct {
         Quiz int `json:"quiz"`
         Beacon []int `json:"beacon"`
@@ -29,6 +35,25 @@ func main() {
         user := c.Param("user")
         return c.String(http.StatusOK, "Hello, World!" + user)
     })
+    e.GET("/regulation", func(c echo.Context) error {
+        filename := "./regulation.txt"
+
+        f, err := os.Open(filename)
+        defer f.Close()
+        
+        if err != nil{
+            response := regulatoinResponse {
+                Message : "File Not Found (" + filename + ")",
+            }
+            return c.JSON(http.StatusInternalServerError, response)
+        }
+
+        b, err := ioutil.ReadAll(f)
+        response := regulatoinResponse {
+            Message : string(b),
+        }
+        return c.JSON(http.StatusOK, response)
+    })
     e.POST("/stamp/image", func(c echo.Context) error {
         request := new(beaconRequest)
         if err := c.Bind(request); err != nil {
@@ -44,9 +69,9 @@ func main() {
         num := rand.Intn(3)
 
         response := beaconResponse {
-            ID: num,
-            Quiz: request.Quiz,
-            URL: "https://1.bp.blogspot.com/-3XfMA0UhT70/XlyfrsiokjI/AAAAAAABXn8/j_CLCc73TTEi-PCK19hnUwY3D-pJgmjvQCNcBGAsYHQ/s1600/drink_beer_yukata_man.png",
+            ID : num,
+            Quiz : request.Quiz,
+            URL : "https://1.bp.blogspot.com/-3XfMA0UhT70/XlyfrsiokjI/AAAAAAABXn8/j_CLCc73TTEi-PCK19hnUwY3D-pJgmjvQCNcBGAsYHQ/s1600/drink_beer_yukata_man.png",
         }
         return c.JSON(http.StatusOK, response)
     })

@@ -1,9 +1,12 @@
 package main
 
 import (
+    "echo/data"
+
     "time"
     "os"
     "strconv"
+    "fmt"
 
     "math/rand"
     "net/http"
@@ -11,38 +14,6 @@ import (
 
     "github.com/labstack/echo/v4"
     "github.com/google/uuid"
-)
-
-type (
-    regulatoinResponse struct {
-        Message string `json:"message"`
-    }
-
-    userRequest struct {
-        Name string `json:"name"`
-        Device string `json:"device"`
-        Version string `json:"version"`
-    }
-    userResponse struct {
-        UUID string `json:"uuid"`
-    }
-
-    imageRequest struct {
-        Quiz int `json:"quiz"`
-    }
-    imageResponse struct {
-        URL string `json:"url"`
-    }
-    
-    beaconRequest struct {
-        Quiz int `json:"quiz"`
-        Beacon []int `json:"beacon"`
-    }
-    beaconResponse struct {
-        ID int `json:"id"`
-        Quiz int `json:"quiz"`
-        URL string `json:"url"`
-    }
 )
 
 const (
@@ -76,12 +47,12 @@ func main() {
         }
     })  
     e.POST("/user/create", func (c echo.Context) error {
-        request := new(userRequest)
+        request := new(data.UserRequest)
         if err := c.Bind(request); err != nil {
             return err
         }
 
-        response := userResponse {}
+        response := data.UserResponse {}
 
         if(request.Name == "taked") {
             return c.JSON(http.StatusConflict, response)
@@ -102,27 +73,27 @@ func main() {
         defer f.Close()
         
         if err != nil{
-            response := regulatoinResponse {
+            response := data.RegulatoinResponse {
                 Message : "File Not Found (" + filename + ")",
             }
             return c.JSON(http.StatusInternalServerError, response)
         }
 
         b, err := ioutil.ReadAll(f)
-        response := regulatoinResponse {
+        response := data.RegulatoinResponse {
             Message : string(b),
         }
         return c.JSON(http.StatusOK, response)
     })
     e.GET("/stamp/image/:num", func(c echo.Context) error {
         num := c.Param("num")
-        response := imageResponse {
+        response := data.ImageResponse {
             URL : BASE_URL + "/stamp/quiz/" + num,
         }
         return c.JSON(http.StatusOK, response)
     })
     e.POST("/stamp/beacon", func(c echo.Context) error {
-        request := new(beaconRequest)
+        request := new(data.BeaconRequest)
         if err := c.Bind(request); err != nil {
             return err
         }
@@ -133,12 +104,53 @@ func main() {
 		    num = 2
 	    }
 
-        response := beaconResponse {
+        response := data.BeaconResponse {
             ID : num,
             Quiz : request.Quiz,
             //URL : "https://1.bp.blogspot.com/-3XfMA0UhT70/XlyfrsiokjI/AAAAAAABXn8/j_CLCc73TTEi-PCK19hnUwY3D-pJgmjvQCNcBGAsYHQ/s1600/drink_beer_yukata_man.png",
             URL : BASE_URL + "/stamp/quiz/" + strconv.Itoa(request.Quiz),
         }
+        return c.JSON(http.StatusOK, response)
+    })
+    e.POST("/stamp/judge", func(c echo.Context) error {
+        request := new(data.AnswerRequest)
+        if err := c.Bind(request); err != nil {
+            return err
+        }
+
+        fmt.Print(c.Request().Header)
+
+        response := data.AnswerResponse {
+            Quiz : request.Quiz,
+            Correct : false,
+        }
+        switch(request.Quiz) {
+            case 1:
+                if(request.Answer == "NIT") {
+                    response.Correct = true
+                }
+            case 2:
+                if(request.Answer == "c0de") {
+                    response.Correct = true
+                }
+            case 3:
+                if(request.Answer == "メイ") {
+                    response.Correct = true
+                }
+            case 4:
+                if(request.Answer == "一本松古墳") {
+                    response.Correct = true
+                }
+            case 5:
+                if(request.Answer == "57") {
+                    response.Correct = true
+                }
+            case 6:
+                if(request.Answer == "はじっこ") {
+                    response.Correct = true
+                }
+        }
+        
         return c.JSON(http.StatusOK, response)
     })
 

@@ -153,6 +153,12 @@ func main() {
         
         return c.JSON(http.StatusOK, response)
     })
+    e.POST("/user/goal", func(c echo.Context) error {
+        response := data.GoalResponse {
+            Accept : true,
+        }
+        return c.JSON(http.StatusOK, response)
+    })
 
     e.Logger.Fatal(e.Start(":1323"))
 }

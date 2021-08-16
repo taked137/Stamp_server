@@ -39,4 +39,8 @@ type (
 		Quiz int `json:"quiz"`
 		Correct bool `json:"correct"`
 	}
+
+	GoalResponse struct {
+		Accept bool `json:"accept"`
+	}
 )

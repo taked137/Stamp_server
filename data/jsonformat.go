@@ -43,4 +43,8 @@ type (
 	GoalResponse struct {
 		Accept bool `json:"accept"`
 	}
+
+	TestResponse struct {
+		Message string `json:"message"`
+	}
 )

@@ -126,7 +126,7 @@ func main() {
         }
         switch(request.Quiz) {
             case 1:
-                if(request.Answer == "NIT") {
+                if(request.Answer == "NIT" || request.Answer == "nit") {
                     response.Correct = true
                 }
             case 2:
@@ -157,6 +157,34 @@ func main() {
         response := data.GoalResponse {
             Accept : true,
         }
+        return c.JSON(http.StatusOK, response)
+    })
+    e.GET("/info", func(c echo.Context) error {
+        offset, _ := strconv.Atoi(c.QueryParam("offset"))
+        if offset < 0 {
+            return nil
+        }
+        
+        limit, _ := strconv.Atoi(c.QueryParam("limit"))
+        if limit == 0 {
+            limit = 300
+        }
+
+        messages := make([]data.TestResponse, limit)
+
+        categories := []string{"お化け屋敷", "出店", "研究室見学", "図書館"}
+
+        for i := 0; i < limit; i++ {
+            rand.Seed(time.Now().UnixNano())
+            num := rand.Intn(len(categories))
+
+            messages[i] = data.TestResponse {
+                Message : ("[" + categories[num] + "] " + strconv.Itoa(i + offset)),
+            }
+        } 
+
+        response := make(map[string][]data.TestResponse)
+        response["result"] = messages
         return c.JSON(http.StatusOK, response)
     })
 

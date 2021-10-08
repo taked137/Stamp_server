@@ -159,6 +159,45 @@ func main() {
         }
         return c.JSON(http.StatusOK, response)
     })
+    e.GET("/map/checkpoint", func(c echo.Context) error {
+        checkpoints := []data.CheckPoint {
+            data.CheckPoint {
+                Num : 1,
+                Latitude : 35.156893,
+		        Longitude : 136.925268,
+            },
+            data.CheckPoint {
+                Num : 2,
+                Latitude : 35.158519,
+		        Longitude : 136.924672,
+            },
+            data.CheckPoint {
+                Num : 3,
+                Latitude : 35.156922,
+		        Longitude : 136.926277,
+            },
+            data.CheckPoint {
+                Num : 4,
+                Latitude : 35.157514,
+		        Longitude : 136.925451,
+            },
+            data.CheckPoint {
+                Num : 5,
+                Latitude : 35.156142,
+		        Longitude : 136.924496,
+            },
+            data.CheckPoint {
+                Num : 6,
+                Latitude : 35.157689,
+		        Longitude : 136.924184,
+            },
+        }
+        response := data.MapResponse {
+            Point : checkpoints,
+        }
+
+        return c.JSON(http.StatusOK, response)
+    })
     e.GET("/info", func(c echo.Context) error {
         offset, _ := strconv.Atoi(c.QueryParam("offset"))
         if offset < 0 {
@@ -170,7 +209,7 @@ func main() {
             limit = 300
         }
 
-        messages := make([]data.TestResponse, limit)
+        messages := make([]data.InfoResponse, limit)
 
         categories := []string{"お化け屋敷", "出店", "研究室見学", "図書館"}
 
@@ -178,12 +217,12 @@ func main() {
             rand.Seed(time.Now().UnixNano())
             num := rand.Intn(len(categories))
 
-            messages[i] = data.TestResponse {
+            messages[i] = data.InfoResponse {
                 Message : ("[" + categories[num] + "] " + strconv.Itoa(i + offset)),
             }
         } 
 
-        response := make(map[string][]data.TestResponse)
+        response := make(map[string][]data.InfoResponse)
         response["result"] = messages
         return c.JSON(http.StatusOK, response)
     })

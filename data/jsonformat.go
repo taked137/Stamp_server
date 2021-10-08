@@ -44,7 +44,16 @@ type (
 		Accept bool `json:"accept"`
 	}
 
-	TestResponse struct {
+	InfoResponse struct {
 		Message string `json:"message"`
+	}
+
+	CheckPoint struct {
+		Num int `json:"num"`
+		Latitude float64 `json:"latitude"`
+		Longitude float64 `json:"longitude"`
+	}
+	MapResponse struct {
+		Point []CheckPoint `json:"checkpoint"`
 	}
 )

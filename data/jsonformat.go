@@ -44,7 +44,18 @@ type (
 		Accept bool `json:"accept"`
 	}
 
+	InfoTitleResponse struct {
+		ID int `json:"id"`
+		Message string `json:"message"`
+	}
+
+	InfoRequest struct {
+		ID int `json:"id"`
+	}
 	InfoResponse struct {
+		ID int `json:"id"`
+		Title string `json:"title"`
+		Category string `json:"category"`
 		Message string `json:"message"`
 	}
 

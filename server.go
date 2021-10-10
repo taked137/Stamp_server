@@ -198,7 +198,7 @@ func main() {
 
         return c.JSON(http.StatusOK, response)
     })
-    e.GET("/info", func(c echo.Context) error {
+    e.GET("/info/title", func(c echo.Context) error {
         offset, _ := strconv.Atoi(c.QueryParam("offset"))
         if offset < 0 {
             return nil
@@ -209,21 +209,44 @@ func main() {
             limit = 300
         }
 
-        messages := make([]data.InfoResponse, limit)
+        messages := make([]data.InfoTitleResponse, limit)
 
         categories := []string{"お化け屋敷", "出店", "研究室見学", "図書館"}
+        titles := []string{"営業時間変更のお知らせ", "完売商品のお知らせ", "13:00より情報工学科の研究室見学が開始されます", "アルコール消毒徹底のお願い"}
 
         for i := 0; i < limit; i++ {
             rand.Seed(time.Now().UnixNano())
             num := rand.Intn(len(categories))
 
-            messages[i] = data.InfoResponse {
-                Message : ("[" + categories[num] + "] " + strconv.Itoa(i + offset)),
+            messages[i] = data.InfoTitleResponse {
+                ID : num,
+                Message : ("[" + categories[num] + "] \n" + titles[num] + " " + strconv.Itoa(i + offset)),
             }
         } 
 
-        response := make(map[string][]data.InfoResponse)
+        response := make(map[string][]data.InfoTitleResponse)
         response["result"] = messages
+        return c.JSON(http.StatusOK, response)
+    })
+    e.GET("/info/content/:num", func(c echo.Context) error {
+        num, _ := strconv.Atoi(c.Param("num"))
+
+        categories := []string{"お化け屋敷", "出店", "研究室見学", "図書館"}
+        titles := []string{"営業時間変更のお知らせ", "完売商品のお知らせ", "13:00より情報工学科の研究室見学が開始されます", "アルコール消毒徹底のお願い"}
+        contents := []string{
+            "新型コロナウイルス感染拡大防止並びに、お客様および従業員の健康と安全確保の観点から、下記の通り営業時間を変更させていただきます。お客様には大変なご心配とご迷惑をおかけいたしますが、何卒ご理解受け賜わりますようお願い申し上げます。\n\n<営業時間>\n13:00 ~ 17:00",
+            "2号館前の洋菓子店(タロエ)\n本日販売の綿菓子は好評につき完売いたしました。\n誠にありがとうございました。\nりんご飴は引き続き販売しております。",
+            "",
+            "本館では、新型コロナウイルスの感染拡大の現状を考慮して、来場者様の安全を最優先に考え、安心してご来館いただけるよう、マスクの着用とアルコール消毒の徹底を行っております。\nお手数をおかけしますが、ご協力をお願いします。",
+        }
+
+        response := data.InfoResponse {
+            ID : num,
+            Title : titles[num],
+            Category : categories[num],
+            Message : contents[num],
+        }
+        
         return c.JSON(http.StatusOK, response)
     })
 

@@ -25,6 +25,8 @@ func main() {
     e.GET("/", func(c echo.Context) error {
         return c.String(http.StatusOK, "Hello, World!")
     })
+    
+    categories := []string{"お化け屋敷", "出店", "研究室見学", "図書館", "メインホール"}
     e.GET("/stamp/quiz/:num", func(c echo.Context) error {
         num, _ := strconv.Atoi(c.Param("num"))
         switch num {
@@ -211,12 +213,12 @@ func main() {
 
         messages := make([]data.InfoTitleResponse, limit)
 
-        categories := []string{"お化け屋敷", "出店", "研究室見学", "図書館"}
         titles := []string{"営業時間変更のお知らせ", "完売商品のお知らせ", "13:00より情報工学科の研究室見学が開始されます", "アルコール消毒徹底のお願い"}
 
+        size := 4
         for i := 0; i < limit; i++ {
             rand.Seed(time.Now().UnixNano())
-            num := rand.Intn(len(categories))
+            num := rand.Intn(size)
 
             messages[i] = data.InfoTitleResponse {
                 ID : num,
@@ -231,7 +233,6 @@ func main() {
     e.GET("/info/content/:num", func(c echo.Context) error {
         num, _ := strconv.Atoi(c.Param("num"))
 
-        categories := []string{"お化け屋敷", "出店", "研究室見学", "図書館"}
         titles := []string{"営業時間変更のお知らせ", "完売商品のお知らせ", "13:00より情報工学科の研究室見学が開始されます", "アルコール消毒徹底のお願い"}
         contents := []string{
             "新型コロナウイルス感染拡大防止並びに、お客様および従業員の健康と安全確保の観点から、下記の通り営業時間を変更させていただきます。お客様には大変なご心配とご迷惑をおかけいたしますが、何卒ご理解受け賜わりますようお願い申し上げます。\n\n<営業時間>\n13:00 ~ 17:00",
@@ -247,6 +248,72 @@ func main() {
             Message : contents[num],
         }
         
+        return c.JSON(http.StatusOK, response)
+    })    
+    e.GET("/event", func(c echo.Context) error {
+        response := data.EventResponse {
+            Events : categories,
+        }
+        
+        return c.JSON(http.StatusOK, response)
+    })
+    e.GET("/event/schedule", func(c echo.Context) error {
+        offset, _ := strconv.Atoi(c.QueryParam("offset"))
+        if offset < 0 || offset > 24 {
+            return nil
+        }
+        
+        limit, _ := strconv.Atoi(c.QueryParam("limit"))
+        if limit == 0 {
+            limit = 10
+        } else if offset + limit > 24 {
+            limit = 24 - offset
+        }
+
+        schedule := make([]data.ScheduleResponse, limit)
+        
+        for i := offset; i < offset + limit; i++ {
+            events := make(map[string]string)
+            switch i {
+            case 9:
+                events[categories[1]] = "営業開始"
+            case 10:
+                events[categories[0]] = "営業開始"
+                events[categories[3]] = "開館"
+                events[categories[4]] = "運営ライブ開始"
+            case 11:
+                events[categories[2]] = "第1ターム開始"
+                events[categories[4]] = "運営ライブ終了"
+            case 12:
+                events[categories[2]] = "第1ターム終了"
+                events[categories[4]] = "声優トークショー開始"
+            case 13:
+                events[categories[2]] = "第2ターム開始"
+            case 14:
+                events[categories[2]] = "第2ターム終了"
+                events[categories[4]] = "声優トークショー終了"
+            case 15:
+                events[categories[2]] = "第3ターム開始"
+            case 16:
+                events[categories[0]] = "営業終了"
+                events[categories[2]] = "第3ターム終了"
+                events[categories[3]] = "閉館"
+                events[categories[4]] = "ミスター/ミスコンテスト結果発表"
+            case 18:
+                events[categories[1]] = "営業終了予定\n(在庫が無くなり次第終了です)"
+                events[categories[4]] = "後夜祭開始"
+            case 19:
+                events[categories[4]] = "後夜祭終了"
+            }
+            // events[categories[i % 4]] = "hello"
+            schedule[i - offset] = data.ScheduleResponse {
+                Time : i,
+                Event : events,
+            }
+        } 
+
+        response := make(map[string][]data.ScheduleResponse)
+        response["result"] = schedule
         return c.JSON(http.StatusOK, response)
     })
 

@@ -59,6 +59,15 @@ type (
 		Message string `json:"message"`
 	}
 
+	EventResponse struct {
+		Events []string `json:"events"`
+	}
+
+	ScheduleResponse struct {
+		Time int `json:"time"`
+		Event map[string]string `json:"events"`
+	}
+
 	CheckPoint struct {
 		Num int `json:"num"`
 		Latitude float64 `json:"latitude"`
